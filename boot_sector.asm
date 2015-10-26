@@ -1,33 +1,53 @@
-[org 0x7c00]
+[org 0x7c00]			; Tell assembler to correct the offsets
 
-mov ah, 0x0e ; for teletype mode
+;
+;	Main method
+;	Prints welcome and exit messages
+;
 
-mov al, 'H' ; characters to be printed go in lower half of the register
-int 0x10
-mov al, 'e'
-int 0x10
-mov al, 'l'
-int 0x10
-mov al, 'l'
-int 0x10
-mov al, 'o'
-int 0x10
-mov al, ' '
-int 0x10
-mov al, 'W'
-int 0x10
-mov al, 'o'
-int 0x10
-mov al, 'r'
-int 0x10
-mov al, 'l'
-int 0x10
-mov al, 'd'
-int 0x10
+mov bx, HELLO_MSG
+call PRINT_FUNC
 
-jmp $ 		; loop to ensure program execution 
-			; doesn't tear off into the nether
+mov bx, GOODBYE_MSG
+call PRINT_FUNC
 
-times 510 - ($ - $$) db 0 ; ensure program is 512 bytes
+jmp $ 					; Hang
 
-dw 0Xaa55 ; magic number makes program a boot sector
+;
+;	Print function
+;	Takes parameters via bx
+;	Returns nothing
+;	Preserves registers
+;
+
+PRINT_FUNC:
+	pusha
+	mov ah, 0x0e		; scrolling teletype bios routine
+.eval_char:
+	mov cx, [bx]
+	test cl, cl			; check to see if string has terminated
+	je .done
+	mov al, cl
+	int 0x10
+	add bx, 1			; move to the next character
+	jmp .eval_char
+.done:
+	popa
+	ret
+	
+;
+;	Globals
+;
+
+HELLO_MSG:
+	db 'Salutations. Welcome to NimbOS.',0
+
+GOODBYE_MSG:
+	db 'Farewell. Bntil next time',0
+
+;
+;	Magic number and padding
+;
+
+times 510-($-$$) db 0
+dw 0xaa55

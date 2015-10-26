@@ -3,7 +3,7 @@ raw_image=boot_sector.asm
 image=NimbOS
 
 all:
-	mkdir $(build_dir)
+	mkdir -p $(build_dir)
 	nasm $(raw_image) -o $(build_dir)/$(image)
 
 run: all
