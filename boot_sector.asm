@@ -64,33 +64,35 @@ PRINT_HEX:
 .adjust_hex_value:
 	push dx				; save original value for later use
 	and dx, ax			; isolate four appropriate bits
-	shr dx, cl
+	shr dx, cl ; shift right by 12?
 	cmp dx, 0xa
 	jl .was_just_digit
-	add dx, 58			; some number voodoo for ascii
+	add dx, 39			; some number voodoo for ascii
 .was_just_digit:
-	add [bx], dx			; edit character the bytes in cx represent
+	add [bx], dx			; edit character the bytes in bx represent
 	shr ax, 4			; increment to next bits
 	sub cl, 4
 	add bx, 1
 	pop dx
 	test ax, ax
 	jne .adjust_hex_value
+	mov bx, HEX_VALUE
+	call PRINT_FUNC
 	popa
 	ret
 
 HEX_VALUE:
-	db '0x0000',0
+	db '0x0000',0xa,0xd,0
 	
 ;
 ;	Globals
 ;
 
 PROCESS_MSG:
-	db 'Currently printing a hex number...Should be 0x1fb6',0
+	db 'Currently printing a hex number...Should be 0x1fb6: ',0
 
 HELLO_MSG:
-	db 'Salutations. Welcome to NimbOS.',0
+	db 'Salutations. Welcome to NimbOS.',0xa,0xd,0
 
 GOODBYE_MSG:
 	db 'Farewell. Until next time',0
