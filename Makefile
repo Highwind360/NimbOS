@@ -4,7 +4,7 @@ image=NimbOS
 
 all:
 	mkdir -p $(build_dir)
-	nasm $(raw_image) -o $(build_dir)/$(image)
+	fasm $(raw_image) $(build_dir)/$(image)
 
 run: all
 	qemu-system-x86_64 $(build_dir)/$(image)

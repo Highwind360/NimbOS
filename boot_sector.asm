@@ -1,4 +1,4 @@
-[org 0x7c00]			; Tell assembler to correct the offsets
+org 0x7c00				; Tell assembler to correct the offsets
 
 ;
 ;	Main method
@@ -7,6 +7,12 @@
 
 mov bx, HELLO_MSG
 call PRINT_FUNC
+
+mov bx, PROCESS_MSG
+call PRINT_FUNC
+
+mov dx, 0x1fb6
+call PRINT_HEX
 
 mov bx, GOODBYE_MSG
 call PRINT_FUNC
@@ -19,10 +25,13 @@ jmp $ 					; Hang
 ;	Returns nothing
 ;	Preserves registers
 ;
+;	Prints out the null terminated
+;	string stored at address in bx
+;
 
 PRINT_FUNC:
 	pusha
-	mov ah, 0x0e		; scrolling teletype bios routine
+	mov ah, 0x0e			; scrolling teletype bios routine
 .eval_char:
 	mov cx, [bx]
 	test cl, cl			; check to see if string has terminated
@@ -34,16 +43,57 @@ PRINT_FUNC:
 .done:
 	popa
 	ret
+
+;
+;	PrintHex function
+;	Takes parameters via dx
+;	Returns nothing
+;	Preserves registers
+;	Uses global HEX_VALUE
+;	
+;	Prints out the hexidecimal 
+;	stored in the dx register
+;
+
+PRINT_HEX:
+	pusha				; setup registers
+	mov ax, 0xf000
+	mov cl, 12
+	mov bx, HEX_VALUE
+	add bx, 2
+.adjust_hex_value:
+	push dx				; save original value for later use
+	and dx, ax			; isolate four appropriate bits
+	shr dx, cl
+	cmp dx, 0xa
+	jl .was_just_digit
+	add dx, 58			; some number voodoo for ascii
+.was_just_digit:
+	add [bx], dx			; edit character the bytes in cx represent
+	shr ax, 4			; increment to next bits
+	sub cl, 4
+	add bx, 1
+	pop dx
+	test ax, ax
+	jne .adjust_hex_value
+	popa
+	ret
+
+HEX_VALUE:
+	db '0x0000',0
 	
 ;
 ;	Globals
 ;
 
+PROCESS_MSG:
+	db 'Currently printing a hex number...Should be 0x1fb6',0
+
 HELLO_MSG:
 	db 'Salutations. Welcome to NimbOS.',0
 
 GOODBYE_MSG:
-	db 'Farewell. Bntil next time',0
+	db 'Farewell. Until next time',0
 
 ;
 ;	Magic number and padding
