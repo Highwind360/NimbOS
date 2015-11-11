@@ -13,6 +13,11 @@ call PRINT_FUNC
 
 mov dx, 0x1fb6
 call PRINT_HEX
+mov ax, 0x4000
+mov bx, 0
+mov es, ax
+mov dh, 2
+call READ_DISK
 
 mov bx, GOODBYE_MSG
 call PRINT_FUNC
@@ -83,7 +88,49 @@ PRINT_HEX:
 
 HEX_VALUE:
 	db '0x0000',0xa,0xd,0
+
+;
+;	ReadDisk option
+;	Takes number of sectors to read via dh
+;	Returns nothing
+;	Does not preserve registers
+;	Reads in a number of sectors from
+;	the boot medium, immediately following
+;	the boot sector itself
+;	Loads the sectors to ES:BX
+;
+
+READ_DISK:
+
+	mov ax, bx			; inform user of disk readx
+	mov bx, DISK_LOADING_MSG
+	call PRINT_FUNC
+	mov bx, ax
+
+	push dx
+	mov ah, 0x02			; BIOS read sector function
+	mov al, dh			; reads DH sectors
+	mov ch, 0x00			; cylinder 0
+	mov dh, 0x00			; head 0
+	mov cl, 0x02			; sector 2
+
+	int 0x013
+
+	jc .disk_error			; if carry flag set, jump to error handler
+
+	pop dx				; restore original dx
+	cmp dh, al			; if sectors read != sectors requested:
+	jne .disk_error			;   jump to error handler
 	
+	mov bx, DISK_SUCCESS_MSG
+	jmp PRINT_FUNC
+
+	ret
+.disk_error:
+	mov bx, DISK_ERROR_MSG		; inform user of failure
+	call PRINT_FUNC
+	jmp $				; Hang on error
+
 ;
 ;	Globals
 ;
@@ -91,11 +138,20 @@ HEX_VALUE:
 PROCESS_MSG:
 	db 'Currently printing a hex number...Should be 0x1fb6: ',0
 
+DISK_LOADING_MSG:
+	db 'Reading sectors from disk...',0xa,0xd,0
+
+DISK_ERROR_MSG:
+	db 'Disk read error.',0
+
+DISK_SUCCESS_MSG:
+	db 'Sectors read to memory',0xa,0xd,0
+
 HELLO_MSG:
 	db 'Salutations. Welcome to NimbOS.',0xa,0xd,0
 
 GOODBYE_MSG:
-	db 'Farewell. Until next time',0
+	db 'Farewell. Until next time.',0
 
 ;
 ;	Magic number and padding
@@ -103,3 +159,10 @@ GOODBYE_MSG:
 
 times 510-($-$$) db 0
 dw 0xaa55
+
+;
+;	Added a byte of gibberish to read from
+;
+
+times 256 dw 0xabab
+times 256 dw 0xcdcd
