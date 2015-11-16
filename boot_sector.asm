@@ -30,6 +30,7 @@ print:
     add bx, 1
     mov al, cl
     int 0x10
+    jmp print_char
 .exit:
     pop cx
     pop ax
