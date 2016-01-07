@@ -11,15 +11,13 @@ org 0x7c00              ; set offset
 ;mov bx, GOODBYE_MSG
 ;call print
 
+jmp $
+
 ;
-;   Print function
-;   Takes pointer to a string via bx
-;   Returns void
-;   Preserves registers
-;   Uses bios interrupt routine 10,
-;   scrolling teletype
+;   Includes
 ;
 
+<<<<<<< HEAD
 print:
     push ax
     push cx
@@ -36,13 +34,15 @@ print:
     pop cx
     pop ax
     ret
+=======
+include "print_functions.asm"
+>>>>>>> 6966e2db53b9fb0cc07c063e884baab6d2ac6a77
 
 ;
-;   Print with newline function
-;   Wrapper for print
-;   Appends newline
+;   Data
 ;
 
+<<<<<<< HEAD
 println:
     call print
     push bx
@@ -55,19 +55,11 @@ NWLN:
     db 0xa,0xd,0
 
 ;
-;   TODO: load labels from second cylinder
-
-;
-;   padding and boot sector number
-;
-
-times 510-($-$$) db 0
-dw 0xaa55
-
-;
 ; Messages section
 ;
 
+=======
+>>>>>>> 6966e2db53b9fb0cc07c063e884baab6d2ac6a77
 GREETING_MSG:
     db 'Welcome to NimbOS. There is nothing here right now.',0
 
