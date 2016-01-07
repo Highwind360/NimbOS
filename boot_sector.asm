@@ -55,6 +55,16 @@ NWLN:
     db 0xa,0xd,0
 
 ;
+;   TODO: load labels from second cylinder
+
+;
+;   padding and boot sector number
+;
+
+times 510-($-$$) db 0
+dw 0xaa55
+
+;
 ; Messages section
 ;
 
