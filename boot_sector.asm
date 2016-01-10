@@ -4,44 +4,57 @@ org 0x7c00              ; set offset
 ;   main function
 ;
 
-; must first load messages referenced
-;mov bx, GREETING_MSG
-;call println
-;
-;mov bx, PRINT_MSG
-;call print
-;
-;mov dx, 0xa3df
-;call print_hex
-;
-;mov dx, 0x5432
-;call print_hexln
-;
-;mov bx, GOODBYE_MSG
-;call print
+begin_execution:
+    mov bx, GREETING_MSG
+    call println
 
-jmp $
+    mov dh, 1           ; read one sector
+    call read_disk
 
-;
-;   Includes
-;
+succesfully_read_disk:
+    mov bx, PRINT_MSG
+    call print
+    
+    mov dx, 0xa3df
+    call print_hexln
+    
+    mov bx, GOODBYE_MSG
+    call print
 
-;include "print_functions.asm"
-
-times 510-($-$$) db 0
-dw 0xaa55
+    jmp $
 
 ;
-; Messages section
+;   Printing functions
+;
+
+include "print_functions.asm"
+
+;
+;   Disk read functions
+;
+
+include "disk_read.asm"
+
+;
+;   Messages section
 ;
 
 GREETING_MSG:
     db 'Welcome to NimbOS. There is nothing here right now.',0
 
 PRINT_MSG:
-    db 'Printing 0xa3df and 0x5432: ',0
+    db 'Printing 0xa3df: ',0
 
 GOODBYE_MSG:
     db 'Goodbye!',0
 
-times 512-($-$$) db 0
+times 510-($-$$) db 0
+dw 0xaa55
+
+WRITE_AREA:
+
+;
+;   Hex printing functions
+;
+
+include "print_hex_functions.asm"
