@@ -8,6 +8,15 @@ org 0x7c00              ; set offset
 ;mov bx, GREETING_MSG
 ;call println
 ;
+;mov bx, PRINT_MSG
+;call print
+;
+;mov dx, 0xa3df
+;call print_hex
+;
+;mov dx, 0x5432
+;call print_hexln
+;
 ;mov bx, GOODBYE_MSG
 ;call print
 
@@ -17,33 +26,10 @@ jmp $
 ;   Includes
 ;
 
-print:
-    push ax
-    push cx
-    mov ah, 0x0e        ; scrolling teletype routine
-.print_char:
-    mov cx, [bx]
-    test cl, cl
-    je .exit
-    add bx, 1
-    mov al, cl
-    int 0x10
-    jmp .print_char
-.exit:
-    pop cx
-    pop ax
-    ret
+;include "print_functions.asm"
 
-println:
-    call print
-    push bx
-    mov bx, NWLN
-    call print
-    pop bx
-    ret
-
-NWLN:
-    db 0xa,0xd,0
+times 510-($-$$) db 0
+dw 0xaa55
 
 ;
 ; Messages section
@@ -52,8 +38,8 @@ NWLN:
 GREETING_MSG:
     db 'Welcome to NimbOS. There is nothing here right now.',0
 
-ASDF_MSG:
-    db 'something is wrong',0
+PRINT_MSG:
+    db 'Printing 0xa3df and 0x5432: ',0
 
 GOODBYE_MSG:
     db 'Goodbye!',0
