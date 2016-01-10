@@ -17,7 +17,6 @@ jmp $
 ;   Includes
 ;
 
-<<<<<<< HEAD
 print:
     push ax
     push cx
@@ -34,15 +33,7 @@ print:
     pop cx
     pop ax
     ret
-=======
-include "print_functions.asm"
->>>>>>> 6966e2db53b9fb0cc07c063e884baab6d2ac6a77
 
-;
-;   Data
-;
-
-<<<<<<< HEAD
 println:
     call print
     push bx
@@ -58,8 +49,6 @@ NWLN:
 ; Messages section
 ;
 
-=======
->>>>>>> 6966e2db53b9fb0cc07c063e884baab6d2ac6a77
 GREETING_MSG:
     db 'Welcome to NimbOS. There is nothing here right now.',0
 
